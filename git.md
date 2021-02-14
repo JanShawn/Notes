@@ -37,12 +37,12 @@
 ### 還原指令
 * git checkout 檔案名稱 [恢復單一檔案到最新commit狀態]
   - git checkout 版本ID [回到指定版本]
-  - git checkout master [回到最新版]
-* git reset --hard [還原工作目錄和索引，會跟最後一次commit保持依樣]
-* git reset HEAD^ [刪除最近一次commit]
+* git reset --hard [還原工作目錄和索引，會跟最後一次commit保持依樣] 
+* git reset HEAD^ [刪除最近一次commit，把刪除commit還原回status]
 * git reset --hard ORIG_HEAD[上面語法如果刪除錯可用此語法還原]
 * git reset --soft HEAD^ [刪除最近一次commit，但保留異動內容]
-* git commit --amend[commit之後發現有檔案忘記加入，補內容進去]
+* git commit --amend --no-edit[commit之後發現有檔案忘記加入，補內容進去]
+ - 如果需要更新遠端分支 需下git push -f
 
 * git reset --mixed　取消索引修改
 * git reset --hard　　強制回復到HEAD指定的版本
@@ -62,9 +62,11 @@
 * git merge --no-ff 分支名稱 [合併但避免快轉合併]
 
 ### 如何推送分支到遠端數據庫
+* git remote -v [查看本地所有連接的遠端]
+* git remote update [更新所有遠端分支]
 * git remote [查詢遠端數據庫]
 * git remote rename 原名稱 修改名稱
-* git push origin branch 
+* git push origin branch [推分支到遠端]
   - origin(預設遠端主機名稱)
   - branch(分支名稱)
 
@@ -81,13 +83,14 @@
 
 ### 暫存概念
 * git stash [暫時儲存當前目錄]
-* git stash -u [暫存所有檔案狀態]
+* git stash -u [暫存所有檔案狀態](最好下這個)
+* git stash apply [把最近一次的stash拉回]
 * git stash list [瀏覽stash列表]
 * git stash pop [還原暫存]
 * git stash drop [清除最新暫存]
 * git stash clear [清除全部暫存]
 
-### 標籤
+### 標籤(不常使用)
 * git tag [查詢標籤]
 * git tag -n [查詢詳細標籤]
 * git tag -d 標籤名稱 [刪除標籤]
@@ -109,3 +112,4 @@
 * git reset HEAD~? 回到某幾版之前
 * git reset id(約六七碼)==--hard==? 回到某「特定」版本
 * cat 檔案 可以看檔案內容
+
