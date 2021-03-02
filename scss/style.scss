@@ -1,0 +1,137 @@
+/* extend */
+%button{
+  cursor: pointer;
+  text-decoration: none;
+}
+%margin_center{
+  margin: {
+    left:auto;
+    right:auto;
+  }
+}
+%absolute{
+  position: absolute;
+}
+%borderBox{
+  box-sizing: border-box;
+}
+%clear{
+  &:after{
+    content: '';
+    display: block;
+    clear: both
+    ;
+  }
+}
+%oneLine{
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+// extend使用
+// div{
+//   @extend %button
+// }
+
+/* mixin */
+// ex1.
+/* 第一種(推薦) */
+@mixin fs($size:16px){
+  $base:16px !default; 
+  font-size: $size;
+  font-size: ($size/$base) *1rem;
+}
+/* 第二種 */
+@mixin fs($size:16px,$base:16px){
+  font-size: $size;
+  font-size: ($size/$base) *1rem;
+}
+
+// mixin使用
+// div{
+//   @include fs(24px)
+// }
+
+// ex2.
+@mixin absolute($top:auto,$left:auto,$bottom:auto,$right:auto){
+  position: absolute;
+  // top:$top;
+  // left:$left;
+  // bottom: $bottom;
+  // right: $right;
+  @if $top != auto{
+    top:$top;
+  }
+  @if $left != auto{
+    left:$left;
+  }
+  @if $bottom != auto{
+    $bottom:$bottom;
+  }
+  @if $right != auto{
+    right:$right;
+  }
+}
+
+// div{
+//   @include absolute(40px, 80px);
+// }
+
+// ex3.
+@mixin prefix($property,$value) {
+  @each $prefix in '-webkit-','-moz-','-ms-','-o-',''{
+    #{$prefix}#{$property}:$value;
+  }
+}
+
+*,*:after,*:before{
+  @include prefix(box-sizing, border-box);
+}
+
+// ex4.
+
+$breakpoints:(
+  mobile:auto 768px,
+  tablet:768px 980px,
+  desktop:980px 1200px,
+  wild:1200px auto,
+);
+
+@mixin media($name) {
+  $breakpoints:() !default;
+  $defaults:(
+    xs:auto 576px,
+    sm:576px 768px,
+    md:768px 992px,
+    lg:992px 1200px,
+    xl:1200px auto
+  ) ;
+  
+  $point: map-get($breakpoints,$name) or map-get($defaults, $name);
+
+  @if $point{
+    $min:nth($point,1);
+    $max:nth($point,2);
+    @if $min==auto{
+      @media (max-width:$max){
+        @content;
+      }
+    }@else if $max==auto{
+      @media (min-width:$min){
+        @content;
+      }
+    }@else{
+      @media (min-width:$min) and (max-width:$max){
+        @content;
+      }
+    }
+  }
+}
+
+// h1{
+//   a{
+//     color:red;
+//     @include midea(mobile){
+//       color:yellow;
+//     }
+//   }
+// }

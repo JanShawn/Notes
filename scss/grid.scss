@@ -1,0 +1,109 @@
+// 改寫成mixin
+// .row{
+//   max-width: 960px;
+//   margin-left: auto;
+//   margin-right: auto;
+//   &:after{
+//     content: '';
+//     display: block;
+//     clear: both;
+//   }
+// }
+// $max-width:1200px;都OK
+@mixin row($max-width: 100%) {
+  max-width: $max-width;
+  margin: {
+    left: auto;
+    right: auto;
+  }
+  &:after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+}
+
+.row {
+  @include row();
+  //以下屬性測試看記得移除
+  box-sizing: border-box;
+  border: 1px solid blue;
+  height: 300px;
+}
+
+// 改寫成mixin
+// .col-12{
+//   width: (100% / #{gird} * #{gird}) - #{$gutter} * 2;
+//   margin-left: $gutter;
+//   margin-right: $gutter;
+// }
+
+$grids: (
+  gutter: 5px,
+);
+//法1.使用px(邊邊會凹凸不平)
+// widht需使用calc作單位換算
+@mixin colPx($num: 1) {
+  $grids: () !default;
+  $defaults: (
+    columns: 12,
+    gutter: 10px,
+  );
+  $grids: map-merge($defaults, $grids);
+  // merge完結果
+  // $grids:(
+  // columns:12,
+  // gutter:5px
+  // )
+  $column: map-get($grids, columns); //12
+  $col: (100% / $column); //100% / 12
+  $gutter: map-get($grids, gutter); //5px
+  width: calc(#{$col * $num} - #{$gutter * 2});
+  float: left;
+  margin-left: $gutter;
+  margin-right: $gutter;
+}
+
+$grids: (
+  gutter: 1/5,
+);
+//法2.使用%
+@mixin colPercent($num: 1) {
+  $grids: () !default;
+  $defaults: (
+    columns: 12,
+    gutter: 1/5,
+  );
+  $grids: map-merge($defaults, $grids);
+  // merge完結果
+  // $grids:(
+  // columns:12,
+  // gutter: 1/5,
+  // )
+  $column: map-get($grids, columns); //12
+  $col: (100% / $column); //100% / 12
+  $gutter: $col * map-get($grids, gutter); //100% / 12 * 1/5
+  width: #{$col * $num - $gutter};
+  float: left;
+  margin-left: $gutter / 2;
+  margin-right: $gutter / 2;
+}
+
+// .col-12{
+//   @include colPx(12);
+//   height: 40px;
+//   background: green;
+// }
+
+// 跑for迴圈產出1~12
+@for $index from 1 through 12 {
+  .col-#{$index} {
+    // @include colPx($index);
+    @include colPercent($index);
+    //以下屬性測試看記得移除
+    box-sizing: border-box;
+    border: 1px solid black;
+    height: 40px;
+    background: green;
+  }
+}

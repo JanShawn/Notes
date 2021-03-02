@@ -71,7 +71,7 @@
 }
 ```
 
-![5](https://i.imgur.com/Ia2S2us.jpg)
+![](images/at-root.jpg)
 
 - scss 註解:
   /\* \*/ 會被流到 css 裡面(css 原本的註解)
@@ -133,8 +133,6 @@
     }
     ```
 
-    ![1](https://i.imgur.com/GlowqTZ.jpg)
-
   - 重要!整合應用:整合 map 與 nth
 
     ```
@@ -150,8 +148,6 @@
     }
     ```
 
-    ![2](https://i.imgur.com/MmZ0wKH.jpg)
-    ![3](https://i.imgur.com/Q8mxa3E.jpg)
     ![4](https://i.imgur.com/l6g2mrW.jpg)
 
 ---
@@ -179,31 +175,21 @@
   }
 
   ```
-
----
-
-#### 其他重點
-
-1. CSS 命名偏好-> 使用底線 ex.sub_menu(因為點兩下會整個選起來)
-2. 層級不要太多層
-3. extra: SASS SCSS 差異?
-
-- 沒有大括號
-- 沒有分號
-- 空白要小心
-
-4. 不要拿最外層的 tag 當第一層 ex. header、footer
-
 ---
 
 #### 繼承(extend) & 混用(mixin) & 函式(function)
+  ![](images/explain.png)
 
-- extend[==樣式集中共用==]->設定的會完全一模一樣,(屬性:值)都相同。(新手入門大量使用)
+- extend[樣式集中共用]->把需要設定一模一樣的整理至一起。
+  (新手入門大量使用，幾乎用來做基礎設定) 
+  ==使用方法: @extand %className==，請參考下面範例。
 
-  1. 繼承的擺放位置（要放在檔案最上面）
-  2. 樣式必須要在使用前，因為有權重問題
-  3. 不能放在 Media Query 中
+  1. 繼承的擺放位置（最好要放在檔案最上面）
+     - 原因1:比較好改
+     - 原因2:樣式必須要在使用前，因為有權重問題
+  3. 不能將【外層】的extend放在 Media Query 中使用
   4. <font color="red">使用%來避免佔用 class name</font>
+  
 
   ```scss
   // 當樣式在最前面時，編譯的結果 繼承者 可以覆蓋 被繼承者
@@ -223,7 +209,7 @@
     display: inline-block;
   }
 
-  //----%運用----
+  //----%運用(重要重要重要!)----
   %button {
     text-decoration: none;
     cursor: pointer;
@@ -233,17 +219,21 @@
     display: inline-block;
     @extend %button;
   }
-  //未使用%結果: .button a.button a.otherButton {text-decoration: none;cursor: pointer;}
-  //使用%結果: a.button a.otherButton {text-decoration: none;cursor: pointer;}
+  //未使用%結果: .button a.button {text-decoration: none;cursor: pointer;}
+  //使用%結果: a.button {text-decoration: none;cursor: pointer;}
   ```
 
-- mixin(可管理屬性,最重要)->設定的「==屬性==」都一樣，值不同,。
-
-  1. 一定要有「參數」(你丟東西給他，它回一段樣式給你)
+- mixin[個別樣式]->設定的「==屬性==」都一樣，值不同。
+  ex.我們都有border-radious，你是5px，我是10px  
+   ==使用方法: @include name(變數)==，請參考下面範例。
+  1. 一定要有【參數】(你丟東西給他，它回一段樣式給你)
   2. 依照參數產生樣式
-
+  3. 請好好用default來設計
+  4. 參數不能寫再選取器之中
+  5. 不會受到Media Query限制
+  6. @content => @mixin大括號裡面的內容
   ```scss
-  //請參考mixin.scss檔案
+  //請參考style.scss檔案
   //基本寫法
   @mixin name(param: defaultVal){
     ...
@@ -258,18 +248,72 @@
     font-size: $size;
     font-size: ($size/$base) * 1rem;
   }
+
+  //範例
+  //此處可以寫參數覆蓋 $base:24px;
   div {
+    //此處不能寫參數 $base:24px;
     @include font(24px);
   }
   ```
 
 - function->幫忙做一些複雜計算
-  ![](/Image1.png)
+
 
 #### <font color="red">extend & mixin 差異</font>
 
 extend:管完全一樣，只會產一份。
 mixin:個別樣式，會重新再產生一份。
+
+---
+
+#### How 切分檔案
+檔案如果有「 _ 」不會再產css
+
+主要分兩種檔案
+ - 工具檔(不會產生CSS樣式)，就應該加上"_"
+ - 一般檔案(會產生CSS樣式)
+
+css寫法: @import url(./grid.css);(只有一行import)
+
+scss 寫法 @import'./grid.scss';(會直接把檔案內容寫進去)
+
+
+產CSS的檔案 只能 import 或 使用一次，沒有產css的可以每一頁都import
+
+結構參考
+
+ 
+
+---
+#### 其他重點
+
+1. CSS 命名偏好-> 使用底線 ex.sub_menu(因為點兩下會整個選起來)
+2. 層級不要太多層
+3. extra: SASS SCSS 差異?
+  - 沒有大括號
+  - 沒有分號
+  - 空白要小心
+4. 不要拿最外層的 "tag" 當第一層 ex. ```<header></headr>、<footer></footer>```、
+   (因為tag可以重複使用，每個區塊都有可能用到)
+5. 變數盡量不要重複宣告，盡可能重複使用。ex.顏色宣告一次就好，再使用map-get去取
+6. em rem?
+  - em  會依照層級去繼承
+  - rem 永遠根據最外層
+7. % 專門繼承的樣式，不會再產class
+8. _ 專門載入的檔案
+
+---
+
+#### RWD設定
+直接寫在層級之中(如圖)
+ - 缺點: media 會變多
+ - 優點: 管理觀察上會比較容易
+建議:
+小型專案 可依照舊往寫法(上面基本樣式，下面變版)
+大型專案 可依照上圖管理方式
+    
+---
 
 ---
 

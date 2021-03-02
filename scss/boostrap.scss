@@ -1,0 +1,109 @@
+//法1.使用px
+@mixin colPx($num: 1) {
+  $grids: () !default;
+  $defaults: (
+    columns: 12,
+    gutter: 10px,
+  );
+  $grids: map-merge($defaults, $grids);
+  // merge完結果
+  // $grids:(
+  // columns:12,
+  // gutter:5px
+  // )
+  $column: map-get($grids, columns); //12
+  $col: (100% / $column); //100% / 12
+  $gutter: map-get($grids, gutter); //5px
+  width: calc(#{$col * $num} - #{$gutter * 2});
+  float: left;
+  margin-left: $gutter;
+  margin-right: $gutter;
+}
+
+//法2.使用%
+@mixin colPercent($num: 1) {
+  $grids: () !default;
+  $defaults: (
+    columns: 12,
+    gutter: 1/5,
+  );
+  $grids: map-merge($defaults, $grids);
+  // merge完結果
+  // $grids:(
+  // columns:12,
+  // gutter: 1/5,
+  // )
+  $column: map-get($grids, columns); //12
+  $col: (100% / $column); //100% / 12
+  $gutter: $col * map-get($grids, gutter); //100% / 12 * 1/5
+  width: #{$col * $num - $gutter};
+  float: left;
+  margin-left: $gutter / 2;
+  margin-right: $gutter / 2;
+}
+
+$breakpoints: (
+  xs: auto 576px,
+  sm: 576px 768px,
+  md: 768px 992px,
+  lg: 992px 1200px,
+  xl: 1200px auto,
+);
+@mixin media($name) {
+  $breakpoints: () !default;
+  $defaults: (
+    xs: auto 576px,
+    sm: 576px 768px,
+    md: 768px 992px,
+    lg: 992px 1200px,
+    xl: 1200px auto,
+  );
+
+  $point: map-get($breakpoints, $name) or map-get($defaults, $name);
+
+  @if $point {
+    $min: nth($point, 1);
+    $max: nth($point, 2);
+    @if $min==auto {
+      @media (max-width: $max) {
+        @content;
+      }
+    } @else if $max==auto {
+      @media (min-width: $min) {
+        @content;
+      }
+    } @else {
+      @media (min-width: $min) and (max-width: $max) {
+        @content;
+      }
+    }
+  }
+}
+//! 重要 不管你要不要用就給兩個，後面就當作map來看，不然他會以"，"「xs: auto 576px」當作一組
+//手機板-px 其他-%
+// step1.
+// 先xs md lg ， 再跑 1~12
+// 解1.
+@each $key, $value in $breakpoints {
+  @include media($key) {
+    @for $index from 1 through 12 {
+      .col-#{$key}-#{$index} {
+        @if $key==xs {
+          @include colPx($index);
+        } @else {
+          @include colPercent($index);
+        }
+      }
+    }
+  }
+}
+//解2.
+@for $i from 1 through 12 {
+  @each $key, $value in $breakpoints {
+    @include media($key) {
+      .column-#{$key}-#{$i} {
+        @include colPercent($i);
+      }
+    }
+  }
+}

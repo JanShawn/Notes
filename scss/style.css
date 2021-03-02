@@ -1,0 +1,11 @@
+@charset "UTF-8";
+/* extend */
+/* mixin */
+/* 第一種(推薦) */
+/* 第二種 */
+*, *:after, *:before {
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}

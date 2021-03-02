@@ -1,0 +1,78 @@
+@function px2rem($size, $base: 16px) {
+  @return $size / $base * 1rem;
+}
+
+@function pxlh($size, $line-padding: 2px) {
+  @return $size + $line-padding * 2;
+}
+
+$font: 12px 16px 24px;
+// font-size為什麼要用兩個?優雅降級(防止舊瀏覽器不支援rem)
+@mixin font($level: 2) {
+  @if $level<1 or $level > length($font) {
+    $level: 2;
+  }
+  $size: nth($font, $level);
+  font-size: $size;
+  font-size: px2rem($size);
+  line-height: pxlh($size);
+  line-height: px2rem(pxlh($size));
+}
+
+h1 {
+  @include font(5);
+}
+
+//sass內建fn darken lighten adjust-color
+.adjust {
+  color: adjust-color(blue, $lightness: 20);
+  // color: adjust-color(blue, $lightness: random() * 50);
+}
+.color {
+  color: white;
+  &:hover {
+    color: darken(white, 20%);
+  }
+}
+
+@for $level from 1 through 5 {
+  .grey-#{$level} {
+    color: darken(white, 20% * $level);
+  }
+}
+
+//ex2.
+@function gray($level) {
+  $gray-scale: 0% 20% 40% 60% 80% 100%;
+  @if ($level < 1 or $level > length($gray-scale)) {
+    $level: 1;
+  }
+  @return darken(white, nth($gray-scale, $level));
+}
+
+.abc {
+  color: gray(3);
+}
+
+//ex3.
+$color: (
+  primary: #4a89dc,
+  warning: #f6bb42,
+  grayscale: #f5f7fa #ccd1d9 #656d78,
+);
+
+@function color($name, $level: 1) {
+  @if $name==grayscale {
+    @if $level < 1 or $level > length(map-get($color, $name)) {
+      $level: 1;
+    }
+    @return nth(map-get($color, $name), $level);
+  } @else if map-get($color, $name) {
+    @return map-get($color, $name);
+  }
+}
+
+.aa {
+  color: color(grayscale, 2);
+  background: color(primary);
+}
